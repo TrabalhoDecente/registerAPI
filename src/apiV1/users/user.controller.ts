@@ -1,8 +1,8 @@
-import * as bcrypt from 'bcrypt';
-import { Request, Response } from 'express';
-import * as jwt from 'jwt-then';
-import config from '../../config/config';
-import User from './user.model';
+import * as bcrypt from "bcrypt";
+import { Request, Response } from "express";
+import * as jwt from "jwt-then";
+import config from "../../config/config";
+import User from "./user.model";
 
 export default class UserController {
   public findAll = async (req: Request, res: Response): Promise<any> => {
@@ -11,20 +11,20 @@ export default class UserController {
       if (!users) {
         return res.status(404).send({
           success: false,
-          message: 'Users not found',
-          data: null
+          message: "Users not found",
+          data: null,
         });
       }
 
       res.status(200).send({
         success: true,
-        data: users
+        data: users,
       });
     } catch (err) {
       res.status(500).send({
         success: false,
         message: err.toString(),
-        data: null
+        data: null,
       });
     }
   };
@@ -35,55 +35,54 @@ export default class UserController {
       if (!user) {
         return res.status(404).send({
           success: false,
-          message: 'User not found',
-          data: null
+          message: "User not found",
+          data: null,
         });
       }
 
       res.status(200).send({
         success: true,
-        data: user
+        data: user,
       });
     } catch (err) {
       res.status(500).send({
         success: false,
         message: err.toString(),
-        data: null
+        data: null,
       });
     }
   };
 
   public update = async (req: Request, res: Response): Promise<any> => {
-    const { name, lastName, email, password } = req.body;
+    const { name, email, password } = req.body;
     try {
       const userUpdated = await User.findByIdAndUpdate(
         req.params.id,
         {
           $set: {
             name,
-            lastName,
             email,
-            password
-          }
+            password,
+          },
         },
         { new: true }
       );
       if (!userUpdated) {
         return res.status(404).send({
           success: false,
-          message: 'User not found',
-          data: null
+          message: "User not found",
+          data: null,
         });
       }
       res.status(200).send({
         success: true,
-        data: userUpdated
+        data: userUpdated,
       });
     } catch (err) {
       res.status(500).send({
         success: false,
         message: err.toString(),
-        data: null
+        data: null,
       });
     }
   };
@@ -95,8 +94,8 @@ export default class UserController {
       if (!user) {
         return res.status(404).send({
           success: false,
-          message: 'User not found',
-          data: null
+          message: "User not found",
+          data: null,
         });
       }
       res.status(204).send();
@@ -104,7 +103,7 @@ export default class UserController {
       res.status(500).send({
         success: false,
         message: err.toString(),
-        data: null
+        data: null,
       });
     }
   };
