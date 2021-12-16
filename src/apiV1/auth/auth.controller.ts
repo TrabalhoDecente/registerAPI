@@ -84,7 +84,7 @@ export default class UserController {
     res: Response
   ): Promise<any> => {
     const { username, firstname, lastname, email, password } = req.body;
-    console.log("here", req.body);
+    console.log("Iniciando o registro do usuário");
     try {
       const hash = await bcrypt.hash(password, config.SALT_ROUNDS);
 
@@ -102,10 +102,18 @@ export default class UserController {
         email,
         redirectUri: "http://example.com",
       };
+
       const newUser = await user.save();
+      if (newUser) {
+        console.log("Usuário base salvo com sucesso.");
+      }
+      console.log("Iniciando processo de criação de usuário do gateway.");
       const response = await axios.post(
         "http://localhost:9876/users",
         gatewayUserBody
+      );
+      console.log(
+        `Requisição feita para o endereço http://localhost:9876/users executada com status:${response.status} - Sucesso `
       );
 
       const userGateway = new UserGateway({
@@ -120,7 +128,10 @@ export default class UserController {
         updatedAt: response.data.updatedAt,
       });
 
-      await userGateway.save();
+      let gatewayUser = await userGateway.save();
+      if (gatewayUser) {
+        console.log("Usuário gateway salvo com sucesso.");
+      }
 
       const userCredential: UserGatewayCredentialsInterface = {
         username: response.data.username,
@@ -131,12 +142,21 @@ export default class UserController {
         createdAt: "",
         updatedAt: "",
       };
+      console.log(
+        `Iniciando processo de credencial para o usuário do gateway.`
+      );
 
       const res2 = await axios.post("http://localhost:9876/credentials", {
         credential: {},
         consumerId: response.data.username,
         type: "oauth2",
       });
+      if (res2) {
+        console.log(
+          `Requisição feita para o endereço http://localhost:9876/credentials executada com status:${res2.status} - Sucesso `
+        );
+        console.log("Credêncial gateway criada com sucesso.");
+      }
 
       userCredential.secret = res2.data.secret;
       userCredential.isActive = res2.data.isActive;
@@ -148,7 +168,10 @@ export default class UserController {
       });
 
       // Salva no banco o meu user com email e username do registerAPi, e coloca todos os dados recebido pela credential.
-      await userCredentialSave.save();
+      let userCredentialGateway = await userCredentialSave.save();
+      if (userCredentialGateway) {
+        console.log("Credêncial gateway salva no banco Mongo com sucesso.");
+      }
 
       // Como res envio somente o que importaa para o front que não tem visibilidade do que acontece no gateway
       res.status(201).send({
